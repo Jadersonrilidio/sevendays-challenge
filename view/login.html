@@ -17,17 +17,15 @@
     <h1>Scuba<span>PHP</span></h1>
 
     <form action="/?page=login&from=login" method="POST">
-        <div class="{{status-class}}">
-            <p>{{status-message}}</p>
-        </div>
+        {{status}}
 
         <label for="login">Email</label>
-        <input type="text" name="person[email]" required>
-        <span class="mensagem-erro">{{email-error}}</span>
+        <input type="text" name="person[email]" required value="{{email-value}}">
+        {{email-error-message}}
 
         <label for="password">Senha</label>
-        <input type="password" name="person[password]" required>
-        <span class="mensagem-erro">{{password-error}}</span>
+        <input type="password" name="person[password]" required value="{{password-value}}">
+        {{password-error-message}}
 
         <button>Entrar</button>
 

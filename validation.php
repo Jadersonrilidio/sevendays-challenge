@@ -151,10 +151,11 @@ function assertInputsAreValid(array &$data): void
 {
     foreach ($data as $field) {
         if ($field['valid'] === false) {
-            $data['status']['valid'] = false;
-            $data['status']['class'] = 'mensagem-erro';
-            $data['status']['message'] = 'Error: Please check your inputs.';
-            return;
+            $data['status'] = array(
+                'valid' => false,
+                'class' => 'mensagem-erro',
+                'message' => 'Error: Please check your inputs',
+            );
         }
     }
 }

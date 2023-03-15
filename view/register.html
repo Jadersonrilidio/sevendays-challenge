@@ -20,25 +20,23 @@
     <form action="/?page=register&from=register" method="POST">
         <p>Cadastre Um Novo Usuário</p>
 
-        <div class="{{status-class}}">
-            <p>{{status-message}}</p>
-        </div>
+        {{status}}
 
         <label for="nome">Nome</label>
         <input type="text" name="person[name]" required value="{{name-value}}">
-        <span class="mensagem-erro">{{name-error}}</span>
+        {{name-error-message}}
 
         <label for="email">E-mail</label>
         <input type="email" name="person[email]" required value="{{email-value}}">
-        <span class="mensagem-erro">{{email-error}}</span>
+        {{email-error-message}}
 
         <label for="senha">Senha</label>
         <input type="password" name="person[password]" required value="{{password-value}}">
-        <span class="mensagem-erro">{{password-error}}</span>
+        {{password-error-message}}
 
         <label for="repita-senha">Repita Senha</label>
         <input type="password" name="person[password-confirm]" required value="{{password-confirm-value}}">
-        <span class="mensagem-erro">{{password-confirm-error}}</span>
+        {{password-confirm-error-message}}
 
         <input type="submit" value="Salvar">
     </form>

@@ -18,15 +18,14 @@ function register_get(array $data = array(), int $httpCode = 200)
     echo render_view(
         template: 'register',
         content: array(
-            'status-class' => isset($data['status']['class']) ? $data['status']['class'] : '',
-            'status-message' => isset($data['status']['message']) ? $data['status']['message'] : '',
-            'name-error' => isset($data['name']['errors']) ? implode(' ', $data['name']['errors']) : '',
+            'status' => render_status_message($data['status'] ?? []),
+            'name-error-message' => render_error_message($data['name'] ?? []),
+            'email-error-message' => render_error_message($data['email'] ?? []),
+            'password-error-message' => render_error_message($data['password'] ?? []),
+            'password-confirm-error-message' => render_error_message($data['password-confirm'] ?? []),
             'name-value' => isset($data['name']['value']) ? $data['name']['value'] : '',
-            'email-error' => isset($data['email']['errors']) ? implode(' ', $data['email']['errors']) : '',
             'email-value' => isset($data['email']['value']) ? $data['email']['value'] : '',
-            'password-error' => isset($data['password']['errors']) ? implode(' ', $data['password']['errors']) : '',
             'password-value' => isset($data['password']['value']) ? $data['password']['value'] : '',
-            'password-confirm-error' => isset($data['password-confirm']['errors']) ? implode(' ', $data['password-confirm']['errors']) : '',
             'password-confirm-value' => isset($data['password-confirm']['value']) ? $data['password-confirm']['value'] : '',
         )
     );
@@ -40,15 +39,15 @@ function register_post(array $data = array(), int $httpCode = 200)
         if ($data['status']['valid'] === true) {
             crud_create(userData: userDto($data));
 
-        header("Location: /?page=login");
-        header("Location: /?page=login&from=register");
-        return;
+            header("Location: /?page=login");
+            header("Location: /?page=login&from=register");
+            return;
         }
     }
 
     register_get(
         data: $data,
-        httpCode:$httpCode
+        httpCode: $httpCode
     );
 }
 
@@ -72,11 +71,10 @@ function login_get(array $data = [], int $httpCode = 200)
     echo render_view(
         template: 'login',
         content: array(
-            'status-class' => isset($data['status']['class']) ? $data['status']['class'] : '',
-            'status-message' => isset($data['status']['message']) ? $data['status']['message'] : '',
-            'email-error' => isset($data['email']['errors']) ? implode(' ', $data['email']['errors']) : '',
+            'status' => render_status_message($data['status'] ?? []),
+            'email-error-message' => render_error_message($data['email'] ?? []),
+            'password-error-message' => render_error_message($data['password'] ?? []),
             'email-value' => isset($data['email']['value']) ? $data['email']['value'] : '',
-            'password-error' => isset($data['password']['errors']) ? implode(' ', $data['password']['errors']) : '',
             'password-value' => isset($data['password']['value']) ? $data['password']['value'] : '',
         )
     );
@@ -99,21 +97,24 @@ function login_post(array $data = [], int $httpCode = 200)
                 hash: $user->password
             )
         ) {
-            $data = array(
-                'status' => array(
-                    'class' => 'mensagem-sucesso',
-                    'message' => "Welcome back, {$user->name}"
+            do_home(
+                data: array(
+                    'status' => array(
+                        'class' => 'mensagem-sucesso',
+                        'message' => "Welcome back, {$user->name}"
+                    ),
+                    'user' => $user
                 ),
-                'user' => $user
+                httpCode: 200
             );
-
-            do_home(data: $data, httpCode: 200);
             return;
         }
 
-        $data['status']['valid'] = false;
-        $data['status']['class'] = 'mensagem-erro';
-        $data['status']['message'] = 'Invalid email or password';
+        $data['status'] = array(
+            'valid' => false,
+            'class' => 'mensagem-erro',
+            'message' => 'Invalid email or password',
+        );
     }
 
     login_get(
@@ -145,7 +146,7 @@ function home_get(array $data = [], int $httpCode = 200)
             'user-name' => $data['user']->name ?? '',
             'user-email' => $data['user']->email ?? '',
             'error-message' => $data['error']['message'] ?? ''
-            )
+        )
     );
 }
 
