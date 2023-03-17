@@ -11,7 +11,49 @@ function do_register(): void
 /**
  * 
  */
-function register_get(array $data = array(), int $httpCode = 200)
+function do_login(array $data = [], int $httpCode = 200): void
+{
+    isset($_POST['person']) ? login_post() : login_get();
+}
+
+/**
+ * 
+ */
+function do_validation(): void
+{
+    $statusData = verifyEmail();
+
+    login_get(
+        data: $statusData,
+        httpCode: 200
+    );
+}
+
+/**
+ * 
+ */
+function do_home(array $data = [], int $httpCode = 200): void
+{
+    home_get($data, $httpCode);
+}
+
+/**
+ * 
+ */
+function do_not_found(array $data = [], int $httpCode = 404): void
+{
+    http_response_code(response_code: $httpCode);
+
+    echo render_view(
+        template: 'not_found',
+        content: []
+    );
+}
+
+/**
+ * 
+ */
+function register_get(array $data = [], int $httpCode = 200)
 {
     http_response_code(response_code: $httpCode);
 
@@ -31,16 +73,34 @@ function register_get(array $data = array(), int $httpCode = 200)
     );
 }
 
-function register_post(array $data = array(), int $httpCode = 200)
+function register_post(array $data = [], int $httpCode = 200)
 {
     if (isset($_POST['person'])) {
         $data = validatePostRegisterUser($_POST['person']);
 
         if ($data['status']['valid'] === true) {
-            crud_create(userData: userDto($data));
+            $user = userDtoObject(
+                name: $data['name']['value'],
+                email: $data['email']['value'],
+                password: $data['password']['value'],
+                verified: false
+            );
 
-            header("Location: /?page=login");
-            header("Location: /?page=login&from=register");
+            // crud_create(userData: userDto($data));
+            crud_create_object(user: $user);
+
+            $token = ssl_crypt(data: $user->email);
+            $link = APP_URL . SLASH . "?page=mail-validation&token=$token";
+
+            send_mail(
+                to: $user->email,
+                name: $user->name,
+                subject: 'Scuba PHP account verification.',
+                body: "Hi there!\n\nClick on the following link to verify your account: $link."
+            );
+
+            header("Location: " . SLASH . "?page=login&from=register");
+
             return;
         }
     }
@@ -49,14 +109,6 @@ function register_post(array $data = array(), int $httpCode = 200)
         data: $data,
         httpCode: $httpCode
     );
-}
-
-/**
- * 
- */
-function do_login(array $data = [], int $httpCode = 200): void
-{
-    isset($_POST['person']) ? login_post() : login_get();
 }
 
 /**
@@ -97,19 +149,31 @@ function login_post(array $data = [], int $httpCode = 200)
                 hash: $user->password
             )
         ) {
-            do_home(
-                data: array(
-                    'status' => array(
-                        'class' => 'mensagem-sucesso',
-                        'message' => "Welcome back, {$user->name}"
+            if ($user->verified) {
+                do_home(
+                    data: array(
+                        'status' => array(
+                            'class' => 'mensagem-sucesso',
+                            'message' => "Welcome back, {$user->name}"
+                        ),
+                        'user' => $user
                     ),
-                    'user' => $user
-                ),
-                httpCode: 200
-            );
-            return;
+                    httpCode: 200
+                );
+                return;
+            } else {
+                $data['status'] = array(
+                    'valid' => false,
+                    'class' => 'mensagem-erro',
+                    'message' => 'Email not verified',
+                );
+                login_get(
+                    data: $data,
+                    httpCode: $httpCode
+                );
+                return;
+            }
         }
-
         $data['status'] = array(
             'valid' => false,
             'class' => 'mensagem-erro',
@@ -121,14 +185,6 @@ function login_post(array $data = [], int $httpCode = 200)
         data: $data,
         httpCode: $httpCode
     );
-}
-
-/**
- * 
- */
-function do_home(array $data = [], int $httpCode = 200): void
-{
-    home_get($data, $httpCode);
 }
 
 /**
@@ -147,18 +203,5 @@ function home_get(array $data = [], int $httpCode = 200)
             'user-email' => $data['user']->email ?? '',
             'error-message' => $data['error']['message'] ?? ''
         )
-    );
-}
-
-/**
- * 
- */
-function do_not_found(array $data = [], int $httpCode = 404): void
-{
-    http_response_code(response_code: $httpCode);
-
-    echo render_view(
-        template: 'not_found',
-        content: array()
     );
 }

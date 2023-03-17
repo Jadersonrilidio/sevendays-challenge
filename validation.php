@@ -36,6 +36,7 @@ function createRegisterValidationObject(array $inputData): array
 {
     $name = filter_var($inputData['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
     $email = filter_var($inputData['email'], FILTER_SANITIZE_EMAIL) ?? '';
+    $mailValidation = filter_var($inputData['mail-validation'], FILTER_VALIDATE_BOOL) ?? false;
     $password = filter_var($inputData['password'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
     $passwordConfirm = filter_var($inputData['password-confirm'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
 
@@ -47,6 +48,11 @@ function createRegisterValidationObject(array $inputData): array
         ),
         'email' => array(
             'value' => $email,
+            'valid' => true,
+            'errors' => []
+        ),
+        'mail-validation' => array(
+            'value' => $mailValidation,
             'valid' => true,
             'errors' => []
         ),
@@ -171,4 +177,41 @@ function fromRegister(array &$data): void
             'message' => "User sucessfully registered.<br>Please confirm your email before proceed."
         );
     }
+}
+
+/**
+ * 
+ */
+function verifyEmail(): array
+{
+    $status = array(
+        'status' => array(
+            'class' => 'mensagem-sucesso',
+            'message' => "Email verified with success."
+        )
+    );
+
+    $token = filter_input(INPUT_GET, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+    $email = ssl_decrypt(data: $token);
+
+    $user = searchUserByEmail($email);
+
+    if (!$user) {
+        $status['status']['class'] = 'mensagem-erro';
+        $status['status']['message'] = "Error on email verification: User email not found.";
+        return $status;
+    }
+
+    if ($user->verified) {
+        $status['status']['class'] = 'mensagem-sucesso';
+        $status['status']['message'] = "Email is already verified.";
+        return $status;
+    }
+
+    $user->verified = true;
+
+    crud_update($user);
+
+    return $status;
 }

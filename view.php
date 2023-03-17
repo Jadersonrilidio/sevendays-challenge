@@ -16,7 +16,7 @@ function render_view(string $template, array $content = []): string
  */
 function render_component(string $template, array $content = []): string
 {
-    $component = file_get_contents(filename: VIEW_FOLDER . 'components/' . $template . '.html');
+    $component = file_get_contents(filename: VIEW_FOLDER . 'components' . SLASH . $template . '.html');
     load_content($component, $content);
 
     return $component;
