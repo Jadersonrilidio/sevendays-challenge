@@ -50,7 +50,7 @@ function crud_select(): array|false
 /**
  * 
  */
-function crud_delete(object $user): int|bool
+function crud_delete(StdClass $user): int|bool
 {
     $users = json_decode(file_get_contents(DATA_LOCATION));
 

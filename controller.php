@@ -19,6 +19,18 @@ function do_login(array $data = [], int $httpCode = 200): void
 /**
  * 
  */
+function do_logout(array $data = [], int $httpCode = 200): void
+{
+    unset($_SESSION['user']);
+
+    http_response_code(response_code: 200);
+
+    header("Location: " . SLASH . "?page=login&from=home");
+}
+
+/**
+ * 
+ */
 function do_validation(): void
 {
     $statusData = verifyEmail();
@@ -35,6 +47,20 @@ function do_validation(): void
 function do_home(array $data = [], int $httpCode = 200): void
 {
     home_get($data, $httpCode);
+}
+
+/**
+ * 
+ */
+function do_delete_account(array $data = [], int $httpCode = 200): void
+{
+    crud_delete(user: auth_user());
+
+    unset($_SESSION['user']);
+
+    http_response_code(response_code: 200);
+
+    header("Location: " . SLASH . "?page=login&from=home");
 }
 
 /**
@@ -60,11 +86,11 @@ function register_get(array $data = [], int $httpCode = 200)
     echo render_view(
         template: 'register',
         content: array(
-            'status' => render_status_message($data['status']),
-            'name-error-message' => render_error_message($data['name']),
-            'email-error-message' => render_error_message($data['email']),
-            'password-error-message' => render_error_message($data['password']),
-            'password-confirm-error-message' => render_error_message($data['password-confirm']),
+            'status' => render_status_message($data['status'] ?? null),
+            'name-error-message' => render_error_message($data['name'] ?? null),
+            'email-error-message' => render_error_message($data['email'] ?? null),
+            'password-error-message' => render_error_message($data['password'] ?? null),
+            'password-confirm-error-message' => render_error_message($data['password-confirm'] ?? null),
             'name-value' => isset($data['name']['value']) ? $data['name']['value'] : '',
             'email-value' => isset($data['email']['value']) ? $data['email']['value'] : '',
             'password-value' => isset($data['password']['value']) ? $data['password']['value'] : '',
@@ -86,7 +112,6 @@ function register_post(array $data = [], int $httpCode = 200)
                 verified: false
             );
 
-            // crud_create(userData: userDto($data));
             crud_create_object(user: $user);
 
             $token = ssl_crypt(data: $user->email);
@@ -99,7 +124,6 @@ function register_post(array $data = [], int $httpCode = 200)
                 body: "Hi there!\n\nClick on the following link to verify your account: $link."
             );
 
-            http_response_code(response_code: 201);
             header("Location: " . SLASH . "?page=login&from=register");
 
             return;
@@ -117,25 +141,33 @@ function register_post(array $data = [], int $httpCode = 200)
  */
 function login_get(array $data = [], int $httpCode = 200)
 {
-    if (isset($_GET['from']) and $_GET['from'] === 'register') {
-        $data['status'] = array(
-            'class' => 'mensagem-sucesso',
-            'message' => "User sucessfully registered.<br>Please confirm your email before proceed."
-        );
-    }
+    is_from_register($data);
 
     http_response_code(response_code: $httpCode);
 
     echo render_view(
         template: 'login',
         content: array(
-            'status' => render_status_message($data['status']),
-            'email-error-message' => render_error_message($data['email']),
-            'password-error-message' => render_error_message($data['password']),
+            'status' => render_status_message($data['status'] ?? null),
+            'email-error-message' => render_error_message($data['email'] ?? null),
+            'password-error-message' => render_error_message($data['password'] ?? null),
             'email-value' => isset($data['email']['value']) ? $data['email']['value'] : '',
             'password-value' => isset($data['password']['value']) ? $data['password']['value'] : '',
         )
     );
+}
+
+/**
+ * 
+ */
+function is_from_register(array &$data): void
+{
+    if (isset($_GET['from']) and $_GET['from'] === 'register') {
+        $data['status'] = array(
+            'class' => 'mensagem-sucesso',
+            'message' => "User sucessfully registered.<br>Please confirm your email before proceed."
+        );
+    }
 }
 
 /**
@@ -146,40 +178,16 @@ function login_post(array $data = [], int $httpCode = 200)
     $data = validatePostLoginUser($_POST['person']);
 
     if ($data['status']['valid'] === true) {
-        $user = searchUserByEmail($data['email']['value']);
+        $authenticated = authentication(
+            email: $data['email']['value'],
+            password: $data['password']['value']
+        );
 
-        if (
-            $user !== false
-            and password_verify(
-                password: $data['password']['value'],
-                hash: $user->password
-            )
-        ) {
-            if ($user->verified) {
-                do_home(
-                    data: array(
-                        'status' => array(
-                            'class' => 'mensagem-sucesso',
-                            'message' => "Welcome back, {$user->name}"
-                        ),
-                        'user' => $user
-                    ),
-                    httpCode: 200
-                );
-                return;
-            } else {
-                $data['status'] = array(
-                    'valid' => false,
-                    'class' => 'mensagem-erro',
-                    'message' => 'Email not verified',
-                );
-                login_get(
-                    data: $data,
-                    httpCode: $httpCode
-                );
-                return;
-            }
+        if ($authenticated) {
+            header("Location: " . SLASH . "?page=home&from=login");
+            return;
         }
+
         $data['status'] = array(
             'valid' => false,
             'class' => 'mensagem-erro',
@@ -198,6 +206,10 @@ function login_post(array $data = [], int $httpCode = 200)
  */
 function home_get(array $data = [], int $httpCode = 200)
 {
+    $user = auth_user();
+
+    is_from_login($data, $user);
+
     http_response_code(response_code: $httpCode);
 
     echo render_view(
@@ -205,9 +217,22 @@ function home_get(array $data = [], int $httpCode = 200)
         content: array(
             'status-class' => $data['status']['class'] ?? '',
             'status-message' => $data['status']['message'] ?? '',
-            'user-name' => $data['user']->name ?? '',
-            'user-email' => $data['user']->email ?? '',
+            'user-name' => $user->name ?? '',
+            'user-email' => $user->email ?? '',
             'error-message' => $data['error']['message'] ?? ''
         )
     );
+}
+
+/**
+ * 
+ */
+function is_from_login(array &$data, StdClass $user): void
+{
+    if (isset($_GET['from']) and $_GET['from'] === 'login') {
+        $data['status'] = array(
+            'class' => 'mensagem-sucesso',
+            'message' => rtrim("Welcome back, " . ($user->name ?? ''), ', ')
+        );
+    }
 }

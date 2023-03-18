@@ -14,7 +14,7 @@ function send_mail(string $to, string $name, string $subject, string $body): boo
     $mail->SMTPDebug = ENVIRONMENT === 'production' ? SMTP::DEBUG_OFF : SMTP::DEBUG_SERVER;
     $mail->isSMTP();
     $mail->Port = 465;
-    $mail->Host = $_ENV['EMAIL_SMPT_HOST'];
+    $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
     $mail->Username = $_ENV['EMAIL_ADDRESS'];
     $mail->Password = $_ENV['EMAIL_PASSWORD'];
@@ -29,7 +29,7 @@ function send_mail(string $to, string $name, string $subject, string $body): boo
 
     // Send email attempt
     if (!$mail->send()) {
-        error_log('Mailer Error: ' . $mail->ErrorInfo);
+        echo ('Mailer Error: ' . $mail->ErrorInfo);
 
         return false;
     } else {
