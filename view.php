@@ -16,7 +16,7 @@ function render_view(string $template, array $content = []): string
  */
 function render_component(string $template, array $content = []): string
 {
-    $component = file_get_contents(filename: VIEW_FOLDER . 'components' . SLASH . $template . '.html');
+    $component = file_get_contents(filename: COMPONENT_FOLDER . $template . '.html');
     load_content($component, $content);
 
     return $component;
@@ -39,9 +39,9 @@ function load_content(string &$page, array $content): void
 /**
  * 
  */
-function render_error_message(array $data = []): string
+function render_error_message(?array $data = null): string
 {
-    if (!isset($data['errors'])) {
+    if (is_null($data) or !isset($data['errors'])) {
         return '';
     }
 
@@ -56,9 +56,9 @@ function render_error_message(array $data = []): string
 /**
  * 
  */
-function render_status_message(array $statusData = []): string
+function render_status_message(?array $statusData = null): string
 {
-    if (!isset($statusData['message'])) {
+    if (is_null($statusData) or !isset($statusData['message'])) {
         return '';
     }
 

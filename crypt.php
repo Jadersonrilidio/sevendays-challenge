@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @return string|false
+ * 
  */
 function ssl_crypt(string $data): string|false
 {
@@ -17,7 +17,7 @@ function ssl_crypt(string $data): string|false
 }
 
 /**
- * @return string|false
+ * 
  */
 function ssl_decrypt(string $data): string|false
 {

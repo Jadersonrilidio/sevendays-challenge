@@ -169,27 +169,9 @@ function assertInputsAreValid(array &$data): void
 /**
  * 
  */
-function fromRegister(array &$data): void
-{
-    if (isset($_GET['from']) and $_GET['from'] === 'register') {
-        $data['status'] = array(
-            'class' => 'mensagem-sucesso',
-            'message' => "User sucessfully registered.<br>Please confirm your email before proceed."
-        );
-    }
-}
-
-/**
- * 
- */
 function verifyEmail(): array
 {
-    $status = array(
-        'status' => array(
-            'class' => 'mensagem-sucesso',
-            'message' => "Email verified with success."
-        )
-    );
+    $status = createStatusArray();
 
     $token = filter_input(INPUT_GET, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
@@ -214,4 +196,17 @@ function verifyEmail(): array
     crud_update($user);
 
     return $status;
+}
+
+/**
+ * 
+ */
+function createStatusArray(): array
+{
+    return array(
+        'status' => array(
+            'class' => 'mensagem-sucesso',
+            'message' => "Email verified with success."
+        )
+    );
 }

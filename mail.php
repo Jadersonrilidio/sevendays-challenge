@@ -11,31 +11,30 @@ function send_mail(string $to, string $name, string $subject, string $body): boo
     // PHPMailer config
     $mail = new PHPMailer(true);
 
-    $SMPTDebug = (isset($_ENV['ENVIRONMENT']) and $_ENV['ENVIRONMENT'] === 'production')
-        ? SMTP::DEBUG_OFF
-        : SMTP::DEBUG_SERVER;
+    $mail->SMTPDebug = ENVIRONMENT === 'production' ? SMTP::DEBUG_OFF : SMTP::DEBUG_SERVER;
+    $mail->isSMTP();
+    $mail->Port = 465;
+    $mail->Host = $_ENV['EMAIL_SMPT_HOST'];
+    $mail->SMTPAuth = true;
+    $mail->Username = $_ENV['EMAIL_ADDRESS'];
+    $mail->Password = $_ENV['EMAIL_PASSWORD'];
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
 
-    $mail->SMTPDebug = $SMPTDebug;                              //Enable verbose debug output
-    $mail->isSMTP();                                            //Send using SMTP
-    $mail->Port = 465;                                          //Set SMTP port number: 465 for SMTP with implicit TLS
-    $mail->Host       = $_ENV['EMAIL_SMPT_HOST'];               //Set the SMTP server to send through
-    $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
-    $mail->Username   = $_ENV['EMAIL_ADDRESS'];                 //SMTP username
-    $mail->Password   = $_ENV['EMAIL_PASSWORD'];                //SMTP password
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-
-    // Sending email
+    // Setting email
     $mail->setFrom($_ENV['EMAIL_ADDRESS'], 'Jay Rods');
     $mail->addAddress($to, $name);
     $mail->Subject = $subject;
     $mail->Body = $body;
     $mail->AltBody = $body;
 
+    // Send email attempt
     if (!$mail->send()) {
         error_log('Mailer Error: ' . $mail->ErrorInfo);
 
         return false;
     } else {
+
+        // IMAP attempt save email
         if (save_mail($mail)) {
             echo "Message saved!";
         }

@@ -5,8 +5,8 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 include 'config.php';
 include 'crypt.php';
 include 'mail.php';
-include 'validation.php';
 include 'crud.php';
+include 'validation.php';
 include 'view.php';
 include 'controller.php';
 include 'routes.php';

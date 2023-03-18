@@ -46,7 +46,7 @@ function do_not_found(array $data = [], int $httpCode = 404): void
 
     echo render_view(
         template: 'not_found',
-        content: []
+        content: $data
     );
 }
 
@@ -60,11 +60,11 @@ function register_get(array $data = [], int $httpCode = 200)
     echo render_view(
         template: 'register',
         content: array(
-            'status' => render_status_message($data['status'] ?? []),
-            'name-error-message' => render_error_message($data['name'] ?? []),
-            'email-error-message' => render_error_message($data['email'] ?? []),
-            'password-error-message' => render_error_message($data['password'] ?? []),
-            'password-confirm-error-message' => render_error_message($data['password-confirm'] ?? []),
+            'status' => render_status_message($data['status']),
+            'name-error-message' => render_error_message($data['name']),
+            'email-error-message' => render_error_message($data['email']),
+            'password-error-message' => render_error_message($data['password']),
+            'password-confirm-error-message' => render_error_message($data['password-confirm']),
             'name-value' => isset($data['name']['value']) ? $data['name']['value'] : '',
             'email-value' => isset($data['email']['value']) ? $data['email']['value'] : '',
             'password-value' => isset($data['password']['value']) ? $data['password']['value'] : '',
@@ -99,6 +99,7 @@ function register_post(array $data = [], int $httpCode = 200)
                 body: "Hi there!\n\nClick on the following link to verify your account: $link."
             );
 
+            http_response_code(response_code: 201);
             header("Location: " . SLASH . "?page=login&from=register");
 
             return;
@@ -116,16 +117,21 @@ function register_post(array $data = [], int $httpCode = 200)
  */
 function login_get(array $data = [], int $httpCode = 200)
 {
-    fromRegister($data);
+    if (isset($_GET['from']) and $_GET['from'] === 'register') {
+        $data['status'] = array(
+            'class' => 'mensagem-sucesso',
+            'message' => "User sucessfully registered.<br>Please confirm your email before proceed."
+        );
+    }
 
     http_response_code(response_code: $httpCode);
 
     echo render_view(
         template: 'login',
         content: array(
-            'status' => render_status_message($data['status'] ?? []),
-            'email-error-message' => render_error_message($data['email'] ?? []),
-            'password-error-message' => render_error_message($data['password'] ?? []),
+            'status' => render_status_message($data['status']),
+            'email-error-message' => render_error_message($data['email']),
+            'password-error-message' => render_error_message($data['password']),
             'email-value' => isset($data['email']['value']) ? $data['email']['value'] : '',
             'password-value' => isset($data['password']['value']) ? $data['password']['value'] : '',
         )
