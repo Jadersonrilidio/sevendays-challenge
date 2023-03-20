@@ -32,6 +32,67 @@ function validatePostLoginUser(array $inputData): array
 /**
  * 
  */
+function validatePostForgetPassword(array $inputData): array
+{
+    $validation = createForgetPasswordValidationObject($inputData);
+
+    checkForWhitespaceValues($validation);
+    assertInputsAreValid($validation);
+
+    return $validation;
+}
+
+/**
+ * 
+ */
+function validatePostChangePassword(array $inputData): array
+{
+    $validation = createChangePasswordValidationObject($inputData);
+
+    checkForWhitespaceValues($validation);
+    checkIfPasswordHasAtLeastTenChars($validation);
+    checkIfPasswordsMatch($validation);
+    assertInputsAreValid($validation);
+
+    return $validation;
+}
+
+/**
+ * 
+ */
+function createChangePasswordValidationObject(array $inputData): array
+{
+    $token = filter_var($inputData['token'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+    $password = filter_var($inputData['password'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+    $passwordConfirm = filter_var($inputData['password-confirm'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+
+    return array(
+        'status' => array(
+            'valid' => true,
+            'class' => 'mensagem-sucesso',
+            'message' => "Password redefined"
+        ),
+        'token' => array(
+            'value' => $token,
+            'valid' => true,
+            'errors' => [],
+        ),
+        'password' => array(
+            'value' => $password,
+            'valid' => true,
+            'errors' => [],
+        ),
+        'password-confirm' => array(
+            'value' => $passwordConfirm,
+            'valid' => true,
+            'errors' => [],
+        )
+    );
+}
+
+/**
+ * 
+ */
 function createRegisterValidationObject(array $inputData): array
 {
     $name = filter_var($inputData['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
@@ -74,7 +135,6 @@ function createRegisterValidationObject(array $inputData): array
     );
 }
 
-
 /**
  * 
  */
@@ -98,6 +158,27 @@ function createLoginValidationObject(array $inputData): array
             'valid' => true,
             'class' => 'mensagem-sucesso',
             'message' => "User logged in"
+        )
+    );
+}
+
+/**
+ * 
+ */
+function createForgetPasswordValidationObject(array $inputData): array
+{
+    $email = filter_var($inputData['email'], FILTER_SANITIZE_EMAIL) ?? '';
+
+    return array(
+        'email' => array(
+            'value' => $email,
+            'valid' => true,
+            'errors' => []
+        ),
+        'status' => array(
+            'valid' => true,
+            'class' => 'mensagem-sucesso',
+            'message' => "Email sent"
         )
     );
 }
@@ -160,7 +241,7 @@ function assertInputsAreValid(array &$data): void
             $data['status'] = array(
                 'valid' => false,
                 'class' => 'mensagem-erro',
-                'message' => 'Error: Please check your inputs',
+                'message' => 'Error: Please insert a valid email address',
             );
         }
     }
@@ -193,7 +274,7 @@ function verifyEmail(): array
 
     $user->verified = true;
 
-    crud_update($user);
+    crud_update(currentUser: $user);
 
     return $status;
 }

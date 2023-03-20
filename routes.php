@@ -13,6 +13,8 @@ function guest_routes()
         'login' => do_login(),
         'register' => do_register(),
         'mail-validation' => do_validation(),
+        'forget-password' => do_forget_password(),
+        'change-password' => do_change_password(),
         default => do_not_found()
     };
 }

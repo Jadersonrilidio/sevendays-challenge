@@ -1,38 +1,41 @@
 <?php
 
-/**
- * 
- */
-function crud_create(array $userData): int|bool
+function crud_load(): array
 {
-    $users = json_decode(file_get_contents(DATA_LOCATION), true);
-    $users[] = $userData;
+    $users = file_get_contents(DATA_LOCATION);
+    $users = json_decode($users);
+    return $users;
+}
 
-    return file_put_contents(DATA_LOCATION, json_encode($users));
+function crud_flush(array $data): int|bool
+{
+    $data = json_encode($data);
+    return file_put_contents(DATA_LOCATION, $data);
 }
 
 /**
  * 
  */
-function crud_create_object(object $user): int|bool
+function crud_create(StdClass $user): int|bool
 {
-    $users = json_decode(file_get_contents(DATA_LOCATION));
+    $users = crud_load();
     $users[] = $user;
 
-    return file_put_contents(DATA_LOCATION, json_encode($users));
+    return crud_flush($users);
 }
 
 /**
  * 
  */
-function crud_update(object $user): int|bool
+function crud_update(object $currentUser): int|bool
 {
-    $users = json_decode(file_get_contents(DATA_LOCATION));
+    $users = crud_load();
 
-    foreach ($users as $i => $item) {
-        if ($item->email === $user->email) {
-            $users[$i] = $user;
-            return file_put_contents(DATA_LOCATION, json_encode($users));
+    foreach ($users as $i => $user) {
+        if ($user->email === $currentUser->email) {
+            $users[$i] = $currentUser;
+
+            return crud_flush($users);
         }
     }
 
@@ -44,20 +47,21 @@ function crud_update(object $user): int|bool
  */
 function crud_select(): array|false
 {
-    return json_decode(file_get_contents(DATA_LOCATION));
+    return crud_load();
 }
 
 /**
  * 
  */
-function crud_delete(StdClass $user): int|bool
+function crud_delete(StdClass $currentUser): int|bool
 {
-    $users = json_decode(file_get_contents(DATA_LOCATION));
+    $users = crud_load();
 
-    foreach ($users as $i => $item) {
-        if ($item->email === $user->email) {
+    foreach ($users as $i => $user) {
+        if ($user->email === $currentUser->email) {
             unset($users[$i]);
-            return file_put_contents(DATA_LOCATION, json_encode($users));
+
+            return crud_flush($users);
         }
     }
 
@@ -94,22 +98,6 @@ function email_exists(string $email): bool
     }
 
     return false;
-}
-
-/**
- * 
- */
-function userDto(array $data): array
-{
-    return array(
-        'name' => $data['name']['value'],
-        'email' => $data['email']['value'],
-        'verified' => $data['mail-validation']['value'] ?? false,
-        'password' => password_hash(
-            password: $data['password']['value'],
-            algo: PASSWORD_ARGON2ID
-        )
-    );
 }
 
 /**
