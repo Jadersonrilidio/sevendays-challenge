@@ -60,39 +60,6 @@ function validatePostChangePassword(array $inputData): array
 /**
  * 
  */
-function createChangePasswordValidationObject(array $inputData): array
-{
-    $token = filter_var($inputData['token'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-    $password = filter_var($inputData['password'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-    $passwordConfirm = filter_var($inputData['password-confirm'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
-
-    return array(
-        'status' => array(
-            'valid' => true,
-            'class' => 'mensagem-sucesso',
-            'message' => "Password redefined"
-        ),
-        'token' => array(
-            'value' => $token,
-            'valid' => true,
-            'errors' => [],
-        ),
-        'password' => array(
-            'value' => $password,
-            'valid' => true,
-            'errors' => [],
-        ),
-        'password-confirm' => array(
-            'value' => $passwordConfirm,
-            'valid' => true,
-            'errors' => [],
-        )
-    );
-}
-
-/**
- * 
- */
 function createRegisterValidationObject(array $inputData): array
 {
     $name = filter_var($inputData['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
@@ -186,6 +153,39 @@ function createForgetPasswordValidationObject(array $inputData): array
 /**
  * 
  */
+function createChangePasswordValidationObject(array $inputData): array
+{
+    $token = filter_var($inputData['token'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+    $password = filter_var($inputData['password'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+    $passwordConfirm = filter_var($inputData['password-confirm'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+
+    return array(
+        'status' => array(
+            'valid' => true,
+            'class' => 'mensagem-sucesso',
+            'message' => "Password redefined"
+        ),
+        'token' => array(
+            'value' => $token,
+            'valid' => true,
+            'errors' => [],
+        ),
+        'password' => array(
+            'value' => $password,
+            'valid' => true,
+            'errors' => [],
+        ),
+        'password-confirm' => array(
+            'value' => $passwordConfirm,
+            'valid' => true,
+            'errors' => [],
+        )
+    );
+}
+
+/**
+ * 
+ */
 function checkForWhitespaceValues(array &$data): void
 {
     foreach ($data as $field => $attributes) {
@@ -201,7 +201,7 @@ function checkForWhitespaceValues(array &$data): void
  */
 function checkIfEmailAlreadyExists(array &$data): void
 {
-    if (email_exists($data['email']['value'])) {
+    if (searchUserByEmail($data['email']['value'])) {
         $data['email']['valid'] = false;
         $data['email']['errors'][] = 'Email already registered';
     }

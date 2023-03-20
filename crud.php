@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * 
+ */
 function crud_load(): array
 {
     $users = file_get_contents(DATA_LOCATION);
@@ -7,6 +10,9 @@ function crud_load(): array
     return $users;
 }
 
+/**
+ * 
+ */
 function crud_flush(array $data): int|bool
 {
     $data = json_encode($data);
@@ -73,27 +79,11 @@ function crud_delete(StdClass $currentUser): int|bool
  */
 function searchUserByEmail(string $email): StdClass|false
 {
-    $users = json_decode(file_get_contents(DATA_LOCATION));
+    $users = crud_load();
 
     foreach ($users as $user) {
         if ($user->email === $email) {
             return $user;
-        }
-    }
-
-    return false;
-}
-
-/**
- * 
- */
-function email_exists(string $email): bool
-{
-    $users = json_decode(file_get_contents(DATA_LOCATION));
-
-    foreach ($users as $user) {
-        if ($user->email === $email) {
-            return true;
         }
     }
 

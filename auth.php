@@ -28,3 +28,13 @@ function auth_user(): StdClass|false
 {
     return isset($_SESSION['user']) ? json_decode($_SESSION['user']) : false;
 }
+
+/**
+ * 
+ */
+function auth_logout(): void
+{
+    if (isset($_SESSION['user'])) {
+        unset($_SESSION['user']);
+    }
+}

@@ -21,9 +21,7 @@ function do_login(array $data = [], int $httpCode = 200): void
  */
 function do_logout(array $data = [], int $httpCode = 200): void
 {
-    unset($_SESSION['user']);
-
-    http_response_code(response_code: 200);
+    auth_logout();
 
     header("Location: " . SLASH . "?page=login&from=home");
 }
@@ -44,9 +42,37 @@ function do_validation(): void
 /**
  * 
  */
+function do_home(array $data = [], int $httpCode = 200): void
+{
+    home_get($data, $httpCode);
+}
+
+/**
+ * 
+ */
+function do_delete_account(array $data = [], int $httpCode = 200): void
+{
+    crud_delete(currentUser: auth_user());
+
+    auth_logout();
+
+    header("Location: " . SLASH . "?page=login&from=delete");
+}
+
+/**
+ * 
+ */
 function do_forget_password(array $data = [], int $httpCode = 200): void
 {
     $_SERVER['REQUEST_METHOD'] === 'POST' ? forget_password_post() : forget_password_get();
+}
+
+/**
+ * 
+ */
+function do_change_password(array $data = [], int $httpCode = 200): void
+{
+    $_SERVER['REQUEST_METHOD'] === 'POST' ? change_password_post() : change_password_get();
 }
 
 /**
@@ -105,14 +131,6 @@ function forget_password_post(array $data = [], int $httpCode = 200): void
 /**
  * 
  */
-function do_change_password(array $data = [], int $httpCode = 200): void
-{
-    $_SERVER['REQUEST_METHOD'] === 'POST' ? change_password_post() : change_password_get();
-}
-
-/**
- * 
- */
 function change_password_get(array $data = [], int $httpCode = 200): void
 {
     echo render_view(
@@ -147,23 +165,23 @@ function change_password_post(array $data = [], int $httpCode = 200): void
         if ($data['status']['valid'] === true) {
             $token = ssl_decrypt($data['token']['value']);
             $tokenArray = explode('=', base64_decode($token));
-            
+
             $email = $tokenArray[0];
             $requestDate = new DateTime($tokenArray[1]);
-            
+
             $today = new DateTime('now');
             $tomorrow = $today->modify("+1 day");
-            
+
             if ($requestDate > $tomorrow) {
                 header("Location: /?page=login&from=change-password");
             }
-            
+
             if ($user = searchUserByEmail($email)) {
                 $user->password = password_hash(
                     password: $data['password']['value'],
                     algo: PASSWORD_ARGON2ID
                 );
-                
+
                 $result = crud_update(currentUser: $user);
                 // dae($data, $token, $tokenArray, $user, $result);
 
@@ -177,28 +195,6 @@ function change_password_post(array $data = [], int $httpCode = 200): void
         data: $data,
         httpCode: $httpCode
     );
-}
-
-/**
- * 
- */
-function do_home(array $data = [], int $httpCode = 200): void
-{
-    home_get($data, $httpCode);
-}
-
-/**
- * 
- */
-function do_delete_account(array $data = [], int $httpCode = 200): void
-{
-    crud_delete(currentUser: auth_user());
-
-    unset($_SESSION['user']);
-
-    http_response_code(response_code: 200);
-
-    header("Location: " . SLASH . "?page=login&from=delete");
 }
 
 /**
@@ -371,8 +367,7 @@ function home_get(array $data = [], int $httpCode = 200)
     echo render_view(
         template: 'home',
         content: array(
-            'status-class' => $data['status']['class'] ?? '',
-            'status-message' => $data['status']['message'] ?? '',
+            'status' => render_status_message($data['status'] ?? null),
             'user-name' => $user->name ?? '',
             'user-email' => $user->email ?? '',
             'error-message' => $data['error']['message'] ?? ''
