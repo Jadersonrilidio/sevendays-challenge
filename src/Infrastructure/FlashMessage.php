@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jayrods\ScubaPHP\Utils;
+namespace Jayrods\ScubaPHP\Infrastructure;
 
 class FlashMessage
 {

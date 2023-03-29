@@ -6,10 +6,10 @@ namespace Jayrods\ScubaPHP\Controller;
 
 use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Controller\Traits\SSLEncryption;
-use Jayrods\ScubaPHP\Core\{Request, Response, Router, view};
+use Jayrods\ScubaPHP\Core\{Request, Response, Router, View};
 use Jayrods\ScubaPHP\Entity\User;
+use Jayrods\ScubaPHP\Infrastructure\FlashMessage;
 use Jayrods\ScubaPHP\Repository\{JsonUserRepository, UserRepository};
-use Jayrods\ScubaPHP\Utils\FlashMessage;
 
 class EmailVerificationController extends Controller
 {
@@ -23,9 +23,9 @@ class EmailVerificationController extends Controller
     /**
      * 
      */
-    public function __construct(view $view, FlashMessage $flashMsg)
+    public function __construct(Request $request, View $view, FlashMessage $flashMsg)
     {
-        parent::__construct($view, $flashMsg);
+        parent::__construct($request, $view, $flashMsg);
 
         $this->userRepository = new JsonUserRepository();
     }

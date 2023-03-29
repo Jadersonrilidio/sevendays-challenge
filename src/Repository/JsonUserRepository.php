@@ -15,7 +15,7 @@ class JsonUserRepository implements UserRepository
     /**
      * 
      */
-    private const USER_DATA_PATH = DATA_PATH . 'users.json';
+    private const USER_DATA_PATH = DATABASE_PATH . 'users.json';
 
     /**
      * 
@@ -117,21 +117,6 @@ class JsonUserRepository implements UserRepository
         }
 
         return false;
-    }
-
-    /**
-     * 
-     */
-    public function passwordRehash(User $user, string $password): bool
-    {
-        return $this->update(
-            new User(
-                name: $user->name(),
-                email: $user->email(),
-                password: $this->passwordHash($password),
-                verified: $user->verified()
-            )
-        );
     }
 
     /**

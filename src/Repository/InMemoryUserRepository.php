@@ -80,21 +80,6 @@ class InMemoryUserRepository implements UserRepository
     /**
      * 
      */
-    public function passwordRehash(User $user, string $password): bool
-    {
-        return $this->update(
-            new User(
-                name: $user->name(),
-                email: $user->email(),
-                password: $this->passwordHash($password),
-                verified: $user->verified()
-            )
-        );
-    }
-
-    /**
-     * 
-     */
     public function findByEmail(string $email): User|false
     {
         $hash = hash('md5', $email);

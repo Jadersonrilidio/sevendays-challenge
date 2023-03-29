@@ -6,8 +6,7 @@ namespace Jayrods\ScubaPHP\Controller;
 
 use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Core\{Request, Response, Router, View};
-use Jayrods\ScubaPHP\Infrastructure\Auth;
-use Jayrods\ScubaPHP\Utils\FlashMessage;
+use Jayrods\ScubaPHP\Infrastructure\{Auth, FlashMessage};
 
 class LogoutController extends Controller
 {
@@ -19,9 +18,9 @@ class LogoutController extends Controller
     /**
      * 
      */
-    public function __construct(View $view, FlashMessage $flashMsg)
+    public function __construct(Request $request, View $view, FlashMessage $flashMsg)
     {
-        parent::__construct($view, $flashMsg);
+        parent::__construct($request, $view, $flashMsg);
 
         $this->auth = new Auth();
     }
@@ -29,7 +28,7 @@ class LogoutController extends Controller
     /**
      * 
      */
-    public function logout(Request $request): Response
+    public function logout(): Response
     {
         if ($this->auth->authLogout()) {
             $this->flashMsg->set(array(

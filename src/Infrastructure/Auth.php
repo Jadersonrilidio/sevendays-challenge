@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Jayrods\ScubaPHP\Infrastructure;
 
 use Jayrods\ScubaPHP\Controller\Traits\SSLEncryption;

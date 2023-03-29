@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Jayrods\ScubaPHP\Controller;
 
-use Jayrods\ScubaPHP\Core\View;
-use Jayrods\ScubaPHP\Utils\FlashMessage;
+use Jayrods\ScubaPHP\Core\{Request, View};
+use Jayrods\ScubaPHP\Infrastructure\FlashMessage;
 
 abstract class Controller
 {
     /**
      * 
      */
-    protected view $view;
+    protected Request $request;
+
+    /**
+     * 
+     */
+    protected View $view;
 
     /**
      * 
@@ -22,8 +27,9 @@ abstract class Controller
     /**
      * 
      */
-    public function __construct(view $view, FlashMessage $flashMsg)
+    public function __construct(Request $request, View $view, FlashMessage $flashMsg)
     {
+        $this->request = $request;
         $this->view = $view;
         $this->flashMsg = $flashMsg;
     }

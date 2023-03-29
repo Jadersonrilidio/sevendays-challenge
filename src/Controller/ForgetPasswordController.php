@@ -8,9 +8,9 @@ use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Controller\Traits\SSLEncryption;
 use Jayrods\ScubaPHP\Core\{Request, Response, Router, View};
 use Jayrods\ScubaPHP\Entity\User;
+use Jayrods\ScubaPHP\Infrastructure\FlashMessage;
 use Jayrods\ScubaPHP\Repository\JsonUserRepository;
 use Jayrods\ScubaPHP\Service\MailService;
-use Jayrods\ScubaPHP\Utils\FlashMessage;
 
 class ForgetPasswordController extends Controller
 {
@@ -21,11 +21,6 @@ class ForgetPasswordController extends Controller
      */
     private JsonUserRepository $userRepository;
 
-    // /**
-    //  * 
-    //  */
-    // private ForgetPasswordValidator $forgetPasswordValidator;
-
     /**
      * 
      */
@@ -34,11 +29,10 @@ class ForgetPasswordController extends Controller
     /**
      * 
      */
-    public function __construct(View $view, FlashMessage $flashMsg)
+    public function __construct(Request $request, View $view, FlashMessage $flashMsg)
     {
-        parent::__construct($view, $flashMsg);
+        parent::__construct($request, $view, $flashMsg);
 
-        // $this->forgetPasswordValidator = new ForgetPasswordValidator($flashMsg);
         $this->userRepository = new JsonUserRepository();
         $this->mail = new MailService();
     }
@@ -46,7 +40,7 @@ class ForgetPasswordController extends Controller
     /**
      * 
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $content = $this->view->renderView(
             template: 'forget_password',
@@ -65,10 +59,10 @@ class ForgetPasswordController extends Controller
     /**
      * 
      */
-    public function sendmail(Request $request): Response
+    public function sendmail(): Response
     {
         $user = $this->userRepository->findByEmail(
-            email: $request->postVars('email')
+            email: $this->request->postVars('email')
         );
 
         if (!$user instanceof User) {

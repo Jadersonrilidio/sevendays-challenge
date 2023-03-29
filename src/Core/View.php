@@ -69,7 +69,7 @@ class View
             ? $this->renderComponent(
                 template: 'input_message',
                 content: array(
-                    'error-message' => implode('. ', $errorMessages)
+                    'error-message' => implode(' ', $errorMessages)
                 )
             ) : '';
     }

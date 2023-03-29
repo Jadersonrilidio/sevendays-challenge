@@ -6,11 +6,10 @@ namespace Jayrods\ScubaPHP\Controller;
 
 use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Controller\Traits\PasswordHandler;
-use Jayrods\ScubaPHP\Core\{Request, Response, Router, view};
+use Jayrods\ScubaPHP\Core\{Request, Response, Router, View};
 use Jayrods\ScubaPHP\Entity\User;
-use Jayrods\ScubaPHP\Infrastructure\Auth;
+use Jayrods\ScubaPHP\Infrastructure\{Auth, FlashMessage};
 use Jayrods\ScubaPHP\Repository\JsonUserRepository;
-use Jayrods\ScubaPHP\Utils\FlashMessage;
 
 class LoginController extends Controller
 {
@@ -29,9 +28,9 @@ class LoginController extends Controller
     /**
      * 
      */
-    public function __construct(View $view, FlashMessage $flashMsg)
+    public function __construct(Request $request, View $view, FlashMessage $flashMsg)
     {
-        parent::__construct($view, $flashMsg);
+        parent::__construct($request, $view, $flashMsg);
 
         $this->userRepository = new JsonUserRepository();
         $this->auth = new Auth();
@@ -40,7 +39,7 @@ class LoginController extends Controller
     /**
      * 
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $statusComponent = $this->view->renderStatusComponent(
             statusClass: $this->flashMsg->get('status-class'),
@@ -74,24 +73,22 @@ class LoginController extends Controller
     /**
      * 
      */
-    public function login(Request $request): Response
+    public function login(): Response
     {
         $user = $this->userRepository->findByEmail(
-            email: $request->postVars('email')
+            email: $this->request->postVars('email')
         );
 
         $passwordCheck = $this->passwordVerify(
-            password: $request->postVars('password'),
+            password: $this->request->postVars('password'),
             hash: $user instanceof User ? $user->password() : ''
         );
 
         $validEmailAndPassword = $this->validEmailAndPassword(
-            request: $request,
             passwordCheck: $passwordCheck
         );
 
         $emailIsVerified = $this->emailIsVerified(
-            request: $request,
             user: $user
         );
 
@@ -100,9 +97,9 @@ class LoginController extends Controller
         }
 
         if ($this->passwordNeedRehash($user->password())) {
-            $this->userRepository->passwordRehash(
+            $this->passwordRehash(
                 user: $user,
-                password: $request->postVars('password')
+                password: $this->request->postVars('password')
             );
         }
 
@@ -115,14 +112,14 @@ class LoginController extends Controller
     /**
      * 
      */
-    private function validEmailAndPassword(Request $request, bool $passwordCheck): bool
+    private function validEmailAndPassword(bool $passwordCheck): bool
     {
         if (!$passwordCheck) {
             !$this->flashMsg->set([
                 'status-class' => 'mensagem-erro',
                 'status-message' => 'Invalid email or password.',
-                'email-value' => $request->postVars('email'),
-                'password-value' => $request->postVars('password'),
+                'email-value' => $this->request->postVars('email'),
+                'password-value' => $this->request->postVars('password'),
             ]);
 
             return false;
@@ -134,7 +131,7 @@ class LoginController extends Controller
     /**
      * 
      */
-    private function emailIsVerified(Request $request, User|bool $user): bool
+    private function emailIsVerified(User|bool $user): bool
     {
         if (!$user instanceof User) {
             return false;
@@ -144,13 +141,28 @@ class LoginController extends Controller
             $this->flashMsg->set([
                 'status-class' => 'mensagem-erro',
                 'status-message' => 'Email not verified.',
-                'email-value' => $request->postVars('email'),
-                'password-value' => $request->postVars('password'),
+                'email-value' => $this->request->postVars('email'),
+                'password-value' => $this->request->postVars('password'),
             ]);
 
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * 
+     */
+    private function passwordRehash(User $user, string $password): bool
+    {
+        return $this->userRepository->update(
+            new User(
+                name: $user->name(),
+                email: $user->email(),
+                password: $this->passwordHash($password),
+                verified: $user->verified()
+            )
+        );
     }
 }

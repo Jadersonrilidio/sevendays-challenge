@@ -12,7 +12,7 @@ define('SLASH', DIRECTORY_SEPARATOR);
 define('VIEW_PATH', ROOT_DIR . SLASH . 'resources' . SLASH . 'view' . SLASH);
 define('COMPONENT_PATH', VIEW_PATH . 'components' . SLASH);
 define('LAYOUT_PATH', VIEW_PATH . 'layout' . SLASH);
-define('DATA_PATH', ROOT_DIR . SLASH . 'database' . SLASH);
+define('DATABASE_PATH', ROOT_DIR . SLASH . 'database' . SLASH);
 define('CACHE_DIR', ROOT_DIR . SLASH . 'storage' . SLASH . 'cache' . SLASH);
 
 // Global flash message constants
@@ -28,7 +28,7 @@ $dotenv->load();
 // .env global constants definition
 define('APP_URL', env('APP_URL', 'http://localhost:8000'));
 define('ENVIRONMENT', env('ENVIRONMENT', 'production'));
-define('EXPIRATION_TIME', env('CACHE_EXPIRATION_TIME', 30));
+define('CACHE_EXPIRATION_TIME', env('CACHE_EXPIRATION_TIME', 30));
 
 // Middlewares mapping and settings
 MiddlewareQueue::setMap(

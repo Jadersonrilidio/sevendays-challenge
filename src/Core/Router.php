@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Jayrods\ScubaPHP\Core;
 
-use Jayrods\ScubaPHP\Core\{Request, Response};
+use Jayrods\ScubaPHP\Controller\Traits\JsonCache;
+use Jayrods\ScubaPHP\Core\{Request, Response, View};
+use Jayrods\ScubaPHP\Infrastructure\FlashMessage;
 use Jayrods\ScubaPHP\Middleware\MiddlewareQueue;
-use Jayrods\ScubaPHP\Utils\{Cached, FlashMessage};
 
 class Router
 {
+    use JsonCache;
+
     /**
      * 
      */
@@ -65,11 +68,12 @@ class Router
         $this->executeMiddlewaresQueue($middlewares);
 
         $controller = new $controller(
+            request: $this->request,
             view: new View(),
             flashMsg: new FlashMessage()
         );
 
-        return $controller->$method($this->request);
+        return $controller->$method();
     }
 
     /**
@@ -80,7 +84,7 @@ class Router
         $httpMethod = $this->request->httpMethod();
         $uri = $this->request->uri();
 
-        $routeRegexArray = Cached::routeRegexArray() ?? $this->createRouteRegexArray($httpMethod);
+        $routeRegexArray = $this->getJsonCache('routeRegexArray') ?? $this->createRouteRegexArray($httpMethod);
 
         $requestRoute = "$httpMethod|$uri";
 
@@ -120,7 +124,7 @@ class Router
             return '/^' . $route . '$/';
         }, $regexArray);
 
-        Cached::saveRouteRegexArray($regexArray);
+        $this->storeJsonCache($regexArray, 'routeRegexArray');
 
         return $regexArray;
     }

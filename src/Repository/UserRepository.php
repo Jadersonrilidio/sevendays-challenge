@@ -37,9 +37,4 @@ interface UserRepository
      * 
      */
     public function findByEmail(string $email): User|false;
-
-    /**
-     * 
-     */
-    public function passwordRehash(User $user, string $password): int|bool;
 }

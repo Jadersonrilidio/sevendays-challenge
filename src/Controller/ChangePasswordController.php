@@ -6,11 +6,11 @@ namespace Jayrods\ScubaPHP\Controller;
 
 use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Controller\Traits\{PasswordHandler, SSLEncryption};
+use Jayrods\ScubaPHP\Controller\Validation\ChangePasswordValidator;
 use Jayrods\ScubaPHP\Core\{Request, Response, Router, View};
 use Jayrods\ScubaPHP\Entity\User;
-use Jayrods\ScubaPHP\Controller\Validation\ChangePasswordValidator;
+use Jayrods\ScubaPHP\Infrastructure\FlashMessage;
 use Jayrods\ScubaPHP\Repository\JsonUserRepository;
-use Jayrods\ScubaPHP\Utils\FlashMessage;
 
 class ChangePasswordController extends Controller
 {
@@ -35,9 +35,9 @@ class ChangePasswordController extends Controller
     /**
      * 
      */
-    public function __construct(View $view, FlashMessage $flashMsg)
+    public function __construct(Request $request, View $view, FlashMessage $flashMsg)
     {
-        parent::__construct($view, $flashMsg);
+        parent::__construct($request, $view, $flashMsg);
 
         $this->changePasswordValidator = new ChangePasswordValidator($flashMsg);
         $this->userRepository = new JsonUserRepository();
@@ -46,7 +46,7 @@ class ChangePasswordController extends Controller
     /**
      * 
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $statusComponent = $this->view->renderStatusComponent(
             statusClass: $this->flashMsg->get('status-class'),
@@ -67,7 +67,7 @@ class ChangePasswordController extends Controller
                 'status' => $statusComponent,
                 'password-errors' => $passwordErrorComponent,
                 'password-confirm-errors' => $passwordConfirmErrorComponent,
-                'token-value' => $request->queryParams('token'),
+                'token-value' => $this->request->queryParams('token'),
                 'password-value' => $this->flashMsg->get('password-value'),
                 'password-confirm-value' => $this->flashMsg->get('password-confirm-value'),
             )
@@ -81,11 +81,11 @@ class ChangePasswordController extends Controller
     /**
      * 
      */
-    public function alterPassword(Request $request): Response
+    public function alterPassword(): Response
     {
-        $this->changePasswordValidator->validate($request);
+        $this->changePasswordValidator->validate($this->request);
 
-        $token = $this->SSLDecrypt($request->postVars('token'));
+        $token = $this->SSLDecrypt($this->request->postVars('token'));
         $token = explode('=', $token);
 
         $email = $token[0];
@@ -109,7 +109,7 @@ class ChangePasswordController extends Controller
             name: $user->name(),
             email: $user->email(),
             verified: $user->verified(),
-            password: $this->passwordHash($request->postVars('password')),
+            password: $this->passwordHash($this->request->postVars('password')),
         );
 
         if (!$this->userRepository->update($updatedUser)) {

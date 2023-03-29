@@ -7,10 +7,8 @@ namespace Jayrods\ScubaPHP\Controller;
 use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Core\{Request, Response, Router, View};
 use Jayrods\ScubaPHP\Entity\User;
-use Jayrods\ScubaPHP\Infrastructure\Auth;
-use Jayrods\ScubaPHP\Infrastructure\Validation\DeleteAccountValidator;
+use Jayrods\ScubaPHP\Infrastructure\{Auth, FlashMessage};
 use Jayrods\ScubaPHP\Repository\JsonUserRepository;
-use Jayrods\ScubaPHP\Utils\FlashMessage;
 
 class DeleteAccountController extends Controller
 {
@@ -27,9 +25,9 @@ class DeleteAccountController extends Controller
     /**
      * 
      */
-    public function __construct(View $view, FlashMessage $flashMsg)
+    public function __construct(Request $request, View $view, FlashMessage $flashMsg)
     {
-        parent::__construct($view, $flashMsg);
+        parent::__construct($request, $view, $flashMsg);
 
         $this->userRepository = new JsonUserRepository();
         $this->auth = new Auth();
@@ -38,7 +36,7 @@ class DeleteAccountController extends Controller
     /**
      * 
      */
-    public function deleteAccount(Request $request): Response
+    public function deleteAccount(): Response
     {
         $user = $this->auth->authUser();
 

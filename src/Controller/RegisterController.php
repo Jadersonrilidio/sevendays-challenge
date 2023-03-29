@@ -6,12 +6,12 @@ namespace Jayrods\ScubaPHP\Controller;
 
 use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Controller\Traits\{PasswordHandler, SSLEncryption};
-use Jayrods\ScubaPHP\Core\{Request, Response, Router, view};
-use Jayrods\ScubaPHP\Entity\User;
 use Jayrods\ScubaPHP\Controller\Validation\RegisterValidator;
+use Jayrods\ScubaPHP\Core\{Request, Response, Router, View};
+use Jayrods\ScubaPHP\Entity\User;
+use Jayrods\ScubaPHP\Infrastructure\FlashMessage;
 use Jayrods\ScubaPHP\Repository\JsonUserRepository;
 use Jayrods\ScubaPHP\Service\MailService;
-use Jayrods\ScubaPHP\Utils\FlashMessage;
 
 class RegisterController extends Controller
 {
@@ -36,9 +36,9 @@ class RegisterController extends Controller
     /**
      * 
      */
-    public function __construct(View $view, FlashMessage $flashMsg)
+    public function __construct(Request $request, View $view, FlashMessage $flashMsg)
     {
-        parent::__construct($view, $flashMsg);
+        parent::__construct($request, $view, $flashMsg);
 
         $this->registerValidator = new RegisterValidator($flashMsg);
         $this->userRepository = new JsonUserRepository();
@@ -48,7 +48,7 @@ class RegisterController extends Controller
     /**
      * 
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $statusComponent = $this->view->renderStatusComponent(
             statusClass: $this->flashMsg->get('status-class'),
@@ -94,14 +94,14 @@ class RegisterController extends Controller
     /**
      * 
      */
-    public function register(Request $request): Response
+    public function register(): Response
     {
-        $this->registerValidator->validate($request);
+        $this->registerValidator->validate($this->request);
 
         $user = new User(
-            name: $request->postVars('name'),
-            email: $request->postVars('email'),
-            password: $this->passwordHash($request->postVars('password'))
+            name: $this->request->postVars('name'),
+            email: $this->request->postVars('email'),
+            password: $this->passwordHash($this->request->postVars('password'))
         );
 
         $this->userRepository->create($user);
