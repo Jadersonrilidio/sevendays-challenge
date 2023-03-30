@@ -2,25 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Jayrods\ScubaPHP\Controller;
+namespace Jayrods\ScubaPHP\Controller\Auth;
 
 use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Controller\Traits\{PasswordHandler, SSLEncryption};
-use Jayrods\ScubaPHP\Controller\Validation\ChangePasswordValidator;
+use Jayrods\ScubaPHP\Controller\Validation\RegisterValidator;
 use Jayrods\ScubaPHP\Http\Core\{Request, Response, Router, View};
 use Jayrods\ScubaPHP\Entity\User;
 use Jayrods\ScubaPHP\Infrastructure\FlashMessage;
 use Jayrods\ScubaPHP\Repository\JsonUserRepository;
+use Jayrods\ScubaPHP\Service\MailService;
 
-class ChangePasswordController extends Controller
+class RegisterController extends Controller
 {
     use PasswordHandler,
         SSLEncryption;
-
-    /**
-     * 
-     */
-    private const EXPIRATION_TIME = 86400;
 
     /**
      * 
@@ -30,7 +26,12 @@ class ChangePasswordController extends Controller
     /**
      * 
      */
-    private ChangePasswordValidator $changePasswordValidator;
+    private RegisterValidator $registerValidator;
+
+    /**
+     * 
+     */
+    private MailService $mail;
 
     /**
      * 
@@ -39,8 +40,9 @@ class ChangePasswordController extends Controller
     {
         parent::__construct($request, $view, $flashMsg);
 
-        $this->changePasswordValidator = new ChangePasswordValidator($flashMsg);
+        $this->registerValidator = new RegisterValidator($flashMsg);
         $this->userRepository = new JsonUserRepository();
+        $this->mail = new MailService();
     }
 
     /**
@@ -53,6 +55,14 @@ class ChangePasswordController extends Controller
             statusMessage: $this->flashMsg->get('status-message')
         );
 
+        $nameErrorComponent = $this->view->renderErrorMessageComponent(
+            errorMessages: $this->flashMsg->getArray('name-errors')
+        );
+
+        $emailErrorComponent = $this->view->renderErrorMessageComponent(
+            errorMessages: $this->flashMsg->getArray('email-errors')
+        );
+
         $passwordErrorComponent = $this->view->renderErrorMessageComponent(
             errorMessages: $this->flashMsg->getArray('password-errors')
         );
@@ -62,18 +72,21 @@ class ChangePasswordController extends Controller
         );
 
         $content = $this->view->renderView(
-            template: 'change_password',
+            template: 'register',
             content: array(
                 'status' => $statusComponent,
+                'name-errors' => $nameErrorComponent,
+                'email-errors' => $emailErrorComponent,
                 'password-errors' => $passwordErrorComponent,
                 'password-confirm-errors' => $passwordConfirmErrorComponent,
-                'token-value' => $this->request->queryParams('token'),
+                'name-value' => $this->flashMsg->get('name-value'),
+                'email-value' => $this->flashMsg->get('email-value'),
                 'password-value' => $this->flashMsg->get('password-value'),
                 'password-confirm-value' => $this->flashMsg->get('password-confirm-value'),
             )
         );
 
-        $page = $this->view->renderlayout('Change Passoword', $content);
+        $page = $this->view->renderLayout('Register', $content);
 
         return new Response($page);
     }
@@ -81,50 +94,28 @@ class ChangePasswordController extends Controller
     /**
      * 
      */
-    public function alterPassword(): Response
+    public function register(): Response
     {
-        $this->changePasswordValidator->validate($this->request);
+        $this->registerValidator->validate($this->request);
 
-        $token = $this->SSLDecrypt($this->request->postVars('token'));
-        $token = explode('=', $token);
-
-        $email = $token[0];
-
-        $requestTimestamp = $token[1];
-        $today = time();
-        $elapsedTime = $today - $requestTimestamp;
-
-        if ($elapsedTime > self::EXPIRATION_TIME) {
-            $this->flashMsg->set(array(
-                'status-class' => 'mensagem-error',
-                'status-message' => 'Change password token has expired.',
-            ));
-
-            Router::redirect('login');
-        }
-
-        $user = $this->userRepository->findByEmail($email);
-
-        $updatedUser = new User(
-            name: $user->name(),
-            email: $user->email(),
-            verified: $user->verified(),
-            password: $this->passwordHash($this->request->postVars('password')),
+        $user = new User(
+            name: $this->request->postVars('name'),
+            email: $this->request->postVars('email'),
+            password: $this->passwordHash($this->request->postVars('password'))
         );
 
-        if (!$this->userRepository->update($updatedUser)) {
-            $this->flashMsg->set(array(
-                'status-class' => 'mensagem-erro',
-                'status-message' => 'Not possible to update user.',
-            ));
+        $this->userRepository->create($user);
 
-            Router::redirect('login');
-        }
+        $token = $this->SSLCrypt($user->email());
 
-        $this->flashMsg->set(array(
-            'status-class' => 'mensagem-sucesso',
-            'status-message' => 'Password redefined with sucess.',
-        ));
+        $link = APP_URL . SLASH . "verify-email?token=$token";
+
+        $this->mail->sendMail(
+            to: $user->email(),
+            name: $user->name(),
+            subject: 'Scuba PHP account verification.',
+            body: "Hi there! Click on the following link to verify your account: $link."
+        );
 
         Router::redirect('login');
         exit;

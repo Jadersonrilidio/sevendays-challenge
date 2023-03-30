@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jayrods\ScubaPHP\Controller;
+namespace Jayrods\ScubaPHP\Controller\Auth;
 
 use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Http\Core\{Request, Response, Router, View};
