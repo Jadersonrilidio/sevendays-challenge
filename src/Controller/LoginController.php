@@ -105,6 +105,11 @@ class LoginController extends Controller
 
         $this->auth->authenticate($user);
 
+        $this->flashMsg->set(array(
+            'status-class' => 'mensagem-sucesso',
+            'status-message' => "Welcome back, {$user->name()}!"
+        ));
+
         Router::redirect();
         exit;
     }

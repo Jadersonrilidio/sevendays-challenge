@@ -9,12 +9,12 @@ class FlashMessage
     /**
      * 
      */
-    private array $next = [];
+    private static array $next = [];
 
     /**
      * 
      */
-    private array $previous = [];
+    private static array $previous = [];
 
     /**
      * 
@@ -22,7 +22,7 @@ class FlashMessage
     public function __construct()
     {
         if (isset($_SESSION[FLASH])) {
-            $this->previous = $_SESSION[FLASH];
+            self::$previous = $_SESSION[FLASH];
             unset($_SESSION[FLASH]);
         }
     }
@@ -32,7 +32,7 @@ class FlashMessage
      */
     public function __destruct()
     {
-        $_SESSION[FLASH] = $this->next;
+        $_SESSION[FLASH] = self::$next;
     }
 
     /**
@@ -41,7 +41,7 @@ class FlashMessage
     public function set(array $messages): void
     {
         foreach ($messages as $name => $message) {
-            $this->next[$name] = $message;
+            self::$next[$name] = $message;
         }
     }
 
@@ -51,7 +51,7 @@ class FlashMessage
     public function add(array $messages): void
     {
         foreach ($messages as $name => $message) {
-            $this->next[$name][] = $message;
+            self::$next[$name][] = $message;
         }
     }
 
@@ -60,7 +60,7 @@ class FlashMessage
      */
     public function get(string $name): string
     {
-        return $this->previous[$name] ?? '';
+        return self::$previous[$name] ?? '';
     }
 
     /**
@@ -68,6 +68,6 @@ class FlashMessage
      */
     public function getArray(string $name): array
     {
-        return $this->previous[$name] ?? [];
+        return self::$previous[$name] ?? [];
     }
 }

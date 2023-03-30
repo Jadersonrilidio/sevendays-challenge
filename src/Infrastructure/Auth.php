@@ -19,6 +19,11 @@ class Auth
     /**
      * 
      */
+    private static ?User $user = null;
+
+    /**
+     * 
+     */
     public function authenticate(User $user): bool
     {
         $sessionUser = new User(
@@ -42,15 +47,21 @@ class Auth
      */
     public function authUser(): User|false
     {
+        if (!is_null(self::$user) and self::$user instanceof User) {
+            return self::$user;
+        }
+
         if ($session = $_SESSION[self::SESSION_AUTH] ?? false) {
             $userData = $this->SSLDecrypt($session);
 
-            return new User(
+            self::$user = new User(
                 name: $userData->name,
                 email: $userData->email,
                 password: null,
                 verified: $userData->verified
             );
+
+            return self::$user;
         }
 
         return false;
