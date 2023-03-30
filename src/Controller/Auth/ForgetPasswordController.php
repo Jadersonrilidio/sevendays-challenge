@@ -43,7 +43,7 @@ class ForgetPasswordController extends Controller
     public function index(): Response
     {
         $content = $this->view->renderView(
-            template: 'forget_password',
+            template: 'auth/forget_password',
             content: array(
                 'status' => '',
                 'email-value' => '',

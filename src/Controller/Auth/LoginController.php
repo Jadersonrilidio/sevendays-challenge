@@ -55,7 +55,7 @@ class LoginController extends Controller
         );
 
         $content = $this->view->renderView(
-            template: 'login',
+            template: 'auth/login',
             content: [
                 'status' => $statusComponent,
                 'email-errors' => $emailErrorComponent,

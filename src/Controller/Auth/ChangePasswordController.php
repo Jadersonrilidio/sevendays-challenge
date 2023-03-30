@@ -62,7 +62,7 @@ class ChangePasswordController extends Controller
         );
 
         $content = $this->view->renderView(
-            template: 'change_password',
+            template: 'auth/change_password',
             content: array(
                 'status' => $statusComponent,
                 'password-errors' => $passwordErrorComponent,

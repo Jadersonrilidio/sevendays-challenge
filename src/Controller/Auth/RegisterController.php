@@ -72,7 +72,7 @@ class RegisterController extends Controller
         );
 
         $content = $this->view->renderView(
-            template: 'register',
+            template: 'auth/register',
             content: array(
                 'status' => $statusComponent,
                 'name-errors' => $nameErrorComponent,
