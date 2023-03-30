@@ -6,7 +6,7 @@ namespace Jayrods\ScubaPHP\Controller\Validation;
 
 use Jayrods\ScubaPHP\Controller\Traits\{PasswordHandler, SSLEncryption};
 use Jayrods\ScubaPHP\Controller\Validation\Validator;
-use Jayrods\ScubaPHP\Core\{Request, Router};
+use Jayrods\ScubaPHP\Http\Core\{Request, Router};
 use Jayrods\ScubaPHP\Infrastructure\{Auth, FlashMessage};
 use Jayrods\ScubaPHP\Repository\JsonUserRepository;
 

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Jayrods\ScubaPHP\Middleware;
+namespace Jayrods\ScubaPHP\Http\Middleware;
 
 use DomainException;
-use Jayrods\ScubaPHP\Core\Request;
+use Jayrods\ScubaPHP\Http\Core\Request;
 
 class MiddlewareQueue
 {

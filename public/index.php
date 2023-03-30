@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Jayrods\ScubaPHP\Core\{Request, Router};
+use Jayrods\ScubaPHP\Http\Core\{Request, Router};
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'bootstrap.php';
 

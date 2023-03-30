@@ -6,7 +6,7 @@ namespace Jayrods\ScubaPHP\Controller;
 
 use Jayrods\ScubaPHP\Controller\Controller;
 use Jayrods\ScubaPHP\Controller\Traits\PasswordHandler;
-use Jayrods\ScubaPHP\Core\{Request, Response, Router, View};
+use Jayrods\ScubaPHP\Http\Core\{Request, Response, Router, View};
 use Jayrods\ScubaPHP\Entity\User;
 use Jayrods\ScubaPHP\Infrastructure\{Auth, FlashMessage};
 use Jayrods\ScubaPHP\Repository\JsonUserRepository;

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Jayrods\ScubaPHP\Middleware;
+namespace Jayrods\ScubaPHP\Http\Middleware;
 
 use Closure;
-use Jayrods\ScubaPHP\Core\{Request, Router};
+use Jayrods\ScubaPHP\Http\Core\{Request, Router};
 use Jayrods\ScubaPHP\Infrastructure\Auth;
-use Jayrods\ScubaPHP\Middleware\Middleware;
+use Jayrods\ScubaPHP\Http\Middleware\Middleware;
 
 class GuestMiddleware implements Middleware
 {

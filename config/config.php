@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Dotenv\Dotenv;
-use Jayrods\ScubaPHP\Middleware\MiddlewareQueue;
+use Jayrods\ScubaPHP\Http\Middleware\MiddlewareQueue;
 
 // Global constants definition
 define('ROOT_DIR', dirname(__DIR__));

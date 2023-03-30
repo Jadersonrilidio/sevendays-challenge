@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jayrods\ScubaPHP\Core;
+namespace Jayrods\ScubaPHP\Http\Core;
 
 class View
 {

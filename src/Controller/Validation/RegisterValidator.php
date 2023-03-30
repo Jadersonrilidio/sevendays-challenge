@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jayrods\ScubaPHP\Controller\Validation;
 
 use Jayrods\ScubaPHP\Controller\Validation\Validator;
-use Jayrods\ScubaPHP\Core\{Request, Router};
+use Jayrods\ScubaPHP\Http\Core\{Request, Router};
 use Jayrods\ScubaPHP\Infrastructure\FlashMessage;
 use Jayrods\ScubaPHP\Repository\{JsonUserRepository, UserRepository};
 

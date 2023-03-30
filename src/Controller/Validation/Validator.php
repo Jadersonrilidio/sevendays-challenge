@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jayrods\ScubaPHP\Controller\Validation;
 
-use Jayrods\ScubaPHP\Core\Request;
+use Jayrods\ScubaPHP\Http\Core\Request;
 
 interface Validator
 {

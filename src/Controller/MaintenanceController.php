@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jayrods\ScubaPHP\Controller;
 
 use Jayrods\ScubaPHP\Controller\Controller;
-use Jayrods\ScubaPHP\Core\Response;
+use Jayrods\ScubaPHP\Http\Core\Response;
 
 class MaintenanceController extends Controller
 {

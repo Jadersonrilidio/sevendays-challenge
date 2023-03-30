@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Jayrods\ScubaPHP\Core;
+namespace Jayrods\ScubaPHP\Http\Core;
 
 use Jayrods\ScubaPHP\Controller\Traits\JsonCache;
-use Jayrods\ScubaPHP\Core\{Request, Response, View};
+use Jayrods\ScubaPHP\Http\Core\{Request, Response, View};
 use Jayrods\ScubaPHP\Infrastructure\FlashMessage;
-use Jayrods\ScubaPHP\Middleware\MiddlewareQueue;
+use Jayrods\ScubaPHP\Http\Middleware\MiddlewareQueue;
 
 class Router
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Jayrods\ScubaPHP\Middleware;
+namespace Jayrods\ScubaPHP\Http\Middleware;
 
 use Closure;
-use Jayrods\ScubaPHP\Core\{Request, Response, View};
-use Jayrods\ScubaPHP\Middleware\Middleware;
+use Jayrods\ScubaPHP\Http\Core\{Request, Response, View};
+use Jayrods\ScubaPHP\Http\Middleware\Middleware;
 
 class MaintenanceMiddleware implements Middleware
 {
